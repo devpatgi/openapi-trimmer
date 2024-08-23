@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
         name='openapi-trimmer',
-        version='0.1.4',
+        version='0.1.3',
         packages=['openapi_trimmer'],
         include_package_data=True,
         install_requires=[
