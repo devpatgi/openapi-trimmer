@@ -28,7 +28,7 @@ def get_version(package_name):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="OpenAPI Endpoint Trimmer.")
+    parser = argparse.ArgumentParser(description="OpenAPI Trimmer")
 
     parser.add_argument('-v', '--version', action='version',
                         version=f'%(prog)s {get_version("openapi-trimmer")}')
