@@ -21,8 +21,8 @@ This command will:
 
 - **-i openapi.yaml**: Use your existing OpenAPI YAML file as input.
 - **-p /v1/quotes,/v1/users**: Keep only the endpoints starting with `/v1/quotes` and `/v1/users`.
-- **-ec CompanyConfigDto,CompanyConfigPagedDto**: Exclude specific components, in this case,
-  the `CompanyConfigDto`, and `CompanyConfigPagedDto`.
+- **-ec CompanyConfigDto,UpdateCompanyConfigDto**: Exclude specific components, in this case,
+  the `CompanyConfigDto`, and `UpdateCompanyConfigDto`.
 
 The trimmed API definition will be saved as `openapi-trimmer.yaml`.
 
