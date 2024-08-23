@@ -4,7 +4,7 @@ Usage to make Open API file only for Quotes API,
 removing all others and also removing some DTOs:
 
 ```bash
-./openapi-trimmer.py -i openapi.yaml \
+openapi-trimmer -i openapi.yaml \
   -p /v1/quotes \
   -ec CompanyConfigDto,CompanyConfigPagedDto,UpdateCompanyConfigDto
 ```

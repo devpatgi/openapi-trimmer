@@ -99,7 +99,7 @@ def trim_yaml(prefixes, exclude_components, data):
     if exclude_components:
         exclude_components = exclude_components.split(",")
 
-        exclude_components = [exclude_components.strip() for exclude_component
+        exclude_components = [exclude_component.strip() for exclude_component
                               in exclude_components if
                               exclude_component.strip()]
 
@@ -117,7 +117,9 @@ def build_output_path(input_path, output_path):
     if output_path:
         return output_path
 
-    output_path = os.path.splitext(input_path)[0] + "-trimmed.yaml"
+    input_yaml_ext = os.path.splitext(input_path)[1]
+
+    output_path = os.path.splitext(input_path)[0] + "-trimmed" + input_yaml_ext
 
     return output_path
 
