@@ -9,6 +9,8 @@ on:
 
 jobs:
   release:
+    name: Release version ${{ github.event.inputs.version }}
+
     permissions:
       contents: write
 
@@ -70,7 +72,7 @@ jobs:
             } catch (error) {
               core.setFailed(error.message);
             }
-            
+
       - name: Build package
         run: python -m build
 
