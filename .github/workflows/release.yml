@@ -38,7 +38,6 @@ jobs:
         run: |
           git tag v${{ github.event.inputs.version }}
           git push --tags
-          run: "echo \"RELEASE_TAG=v${{ github.event.inputs.version }}\" >> $GITHUB_ENV"
 
       - name: Create release
         uses: actions/github-script@v6
@@ -49,11 +48,11 @@ jobs:
               const response = await github.rest.repos.createRelease({
                 draft: false,
                 generate_release_notes: true,
-                name: process.env.RELEASE_TAG,
+                name: v${{ github.event.inputs.version }},
                 owner: context.repo.owner,
                 prerelease: false,
                 repo: context.repo.repo,
-                tag_name: process.env.RELEASE_TAG,
+                tag_name: v${{ github.event.inputs.version }},
               });
 
               core.exportVariable('RELEASE_ID', response.data.id);
