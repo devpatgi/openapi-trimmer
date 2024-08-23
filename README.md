@@ -1,6 +1,6 @@
 # OpenAPI Trimmer
 
-Usage to make Open API file only for Quotes API, 
+Usage to make Open API file only for Quotes API,
 removing all others and also removing some DTOs:
 
 ```bash
@@ -15,4 +15,14 @@ At the end validate with:
 
 ```bash
 swagger-cli validate ./openapi-trimmer.yaml
+```
+
+## PyPi
+
+To install check the package on PyPi:
+
+https://pypi.org/project/openapi-trimmer/
+
+```bash
+pip install openapi-trimmer
 ```
