@@ -14,10 +14,13 @@ removing all others and also removing some DTOs:
 ```bash
 openapi-trimmer -i openapi.yaml \
   -p /v1/quotes,/v1/users \
-  -ec CompanyConfigDto,UpdateCompanyConfigDto
+  -ec CompanyConfigDto,UpdateCompanyConfigDto \
+  -sc
 ```
 
 The output will be stored in `openapi-trimmer.yaml`
+
+Pass `-sc` to strip any components not referenced by the selected paths.
 
 At the end validate with:
 
