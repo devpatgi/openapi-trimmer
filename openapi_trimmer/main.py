@@ -50,6 +50,10 @@ def parse_args():
                              "components names to exclude."
                              " (Ex. CompanyConfigDto,CompanyItemDto)")
 
+    parser.add_argument('-sc', '--strip-components', action='store_true',
+                        help="Remove components not referenced by the"
+                             " selected paths.")
+
     return parser.parse_args()
 
 
@@ -75,7 +79,7 @@ def read_yaml(input_path):
     return data, has_yaml_doc_separator
 
 
-def trim_yaml(prefixes, exclude_components, data):
+def trim_yaml(prefixes, exclude_components, strip_components, data):
     prefixes = prefixes.split(",")
 
     prefixes = [prefix.strip() for prefix in prefixes if prefix.strip()]
@@ -109,6 +113,57 @@ def trim_yaml(prefixes, exclude_components, data):
             for component in exclude_components:
                 if component in data['components']['schemas']:
                     del data['components']['schemas'][component]
+
+    if strip_components and 'components' in data:
+        data = strip_unreferenced_components(data)
+
+    return data
+
+
+def find_component_refs(node, refs):
+    if isinstance(node, dict):
+        ref = node.get('$ref')
+        if isinstance(ref, str) and ref.startswith('#/components/'):
+            parts = ref.split('/')
+            if len(parts) >= 4:
+                refs.setdefault(parts[2], set()).add(parts[3])
+        for value in node.values():
+            find_component_refs(value, refs)
+    elif isinstance(node, list):
+        for item in node:
+            find_component_refs(item, refs)
+
+
+def strip_unreferenced_components(data):
+    refs = {}
+    find_component_refs(data.get('paths', {}), refs)
+    to_process = {k: set(v) for k, v in refs.items()}
+    components = data.get('components', {})
+
+    while to_process:
+        comp_type, names = to_process.popitem()
+        for name in names:
+            component = components.get(comp_type, {}).get(name)
+            if component:
+                new_refs = {}
+                find_component_refs(component, new_refs)
+                for n_type, n_names in new_refs.items():
+                    existing = refs.setdefault(n_type, set())
+                    diff = n_names - existing
+                    if diff:
+                        existing.update(diff)
+                        to_process.setdefault(n_type, set()).update(diff)
+
+    for comp_type, comp_items in list(components.items()):
+        used = refs.get(comp_type, set())
+        for name in list(comp_items.keys()):
+            if name not in used:
+                del comp_items[name]
+        if not comp_items:
+            del components[comp_type]
+
+    if not components:
+        data.pop('components', None)
 
     return data
 
@@ -151,10 +206,11 @@ def main():
     output_path = args.output
     prefixes = args.prefixes
     exclude_components = args.exclude_components
+    strip_components = args.strip_components
 
     data, has_yaml_doc_separator = read_yaml(input_path)
 
-    data = trim_yaml(prefixes, exclude_components, data)
+    data = trim_yaml(prefixes, exclude_components, strip_components, data)
 
     output_path = build_output_path(input_path, output_path)
 
