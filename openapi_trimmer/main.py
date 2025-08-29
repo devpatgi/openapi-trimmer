@@ -199,8 +199,9 @@ def offer_validation_execute(output_path):
     print(f"\nswagger-cli validate {output_path}\n")
 
 
-def trim_openapi(input_path, prefixes, output_path=None, *,
+def trim_openapi(input_path, prefixes, output_path=None,
                  exclude_components=None, strip_components=False):
+    """Returns written output_path"""
     data, has_yaml_doc_separator = read_yaml(input_path)
     data = trim_yaml(prefixes, exclude_components, strip_components, data)
     output_path = build_output_path(input_path, output_path)
