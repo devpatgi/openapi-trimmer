@@ -42,7 +42,9 @@ def parse_args():
 
     parser.add_argument('-p', '--prefixes', type=str, required=True,
                         help="A comma-separated, zero-spaces list of paths "
-                             "to keep. (Ex. /v1/users,/v1/organizations)")
+                             "to keep. Prefixes starting with '!' are "
+                             "excluded and override inclusion prefixes. "
+                             "(Ex. /v1/users,/v1/organizations,!/v1/admin)")
 
     parser.add_argument('-ec', '--exclude-components', type=str,
                         required=False,
@@ -80,18 +82,37 @@ def read_yaml(input_path):
 
 
 def trim_yaml(prefixes, exclude_components, strip_components, data):
-    prefixes = prefixes.split(",")
+    raw_prefixes = [prefix.strip() for prefix in prefixes.split(",") if prefix.strip()]
 
-    prefixes = [prefix.strip() for prefix in prefixes if prefix.strip()]
+    include_prefixes = []
+    exclude_prefixes = []
+    for prefix in raw_prefixes:
+        if prefix.startswith("!"):
+            trimmed = prefix[1:].strip()
+            if trimmed:
+                exclude_prefixes.append(trimmed)
+        else:
+            include_prefixes.append(prefix)
 
-    print(f"\nTrimming to just paths: {', '.join(prefixes)}")
+    if include_prefixes:
+        print(f"\nTrimming to just paths: {', '.join(include_prefixes)}")
+    else:
+        print("\nTrimming to just paths: (all)")
 
-    paths = {path: value for path, value in data.get('paths', {}).items() if
-             any(path.startswith(retain) for retain in prefixes)}
+    if exclude_prefixes:
+        print(f"\nExcluding paths: {', '.join(exclude_prefixes)}")
+
+    paths = {
+        path: value
+        for path, value in data.get('paths', {}).items()
+        if (not include_prefixes or any(path.startswith(retain)
+                                        for retain in include_prefixes))
+        and not any(path.startswith(ignore) for ignore in exclude_prefixes)
+    }
 
     paths_tags = set()
-    for path, value in paths.items():
-        for method, method_value in value.items():
+    for _, value in paths.items():
+        for _, method_value in value.items():
             paths_tags.update(method_value.get('tags', []))
 
     data['paths'] = paths
